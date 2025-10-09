@@ -116,8 +116,8 @@ public class EmailConfig {
 		Message message = new MimeMessage(session);
 		message.setFrom(new InternetAddress(this.fromaddr, "FJGroup No_Reply"));
         System.out.println(this.toaddr);
-       // message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(this.toaddr));
-		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("kartik.p@fjtco.com"));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(this.toaddr));
+		//message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("kartik.p@fjtco.com"));
 		//message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(this.ccaddr));
 		message.setSubject(this.messageSub);   
 		
@@ -198,7 +198,7 @@ public class EmailConfig {
 	public String getMessageFooter() {
 		//String div = " <span style=\"color:red;\">Please Check  <a href=\"https://portal.fjtco.com:8444/fjhr/\" style=\"font-weight:700;\">FJ Portal</a> for more details.</span><br /><br />  "
 		String div = "This is an auto-generated email. Please do not reply to this email. <br/>  "
-				+ "Thank you <br/> Regards, <br/>FJ-Group</td></tr>" + "</td></tr></table>";
+				+ "Thank you <br/> Regards, <br/></td></tr>" + "</td></tr></table>";
 		StringBuilder mbody = new StringBuilder("");
 		mbody.append(div);
 		return mbody.toString();

@@ -30,7 +30,7 @@ public class EmailConfigDbUtil {
 			List<NotifyCustomerOnFeedback> listObjs = new ArrayList<>();
 			try {
 				myCon = orcl.getOracleConn();
-		        String sql = "select INVOICE_NO, INVOICE_DATE, PROJECT, CUSTOMER_EMAIL, SALES_PERSON_NAME FROM CUST_FEED_SUMM WHERE (EMAIL_STATUS IS NULL OR EMAIL_STATUS ='N') ";
+		        String sql = "select INVSYSID, INVOICE_DATE, PROJECT, CUSTOMER_EMAIL, SALES_PERSON_NAME, FOOTER_COMP_NAME FROM CUST_FEED_SUMM WHERE (EMAIL_STATUS IS NULL OR EMAIL_STATUS ='N') ";
 			   myStmt = myCon.prepareStatement(sql);			  
 			   myRes=myStmt.executeQuery();
 			   while(myRes.next()) {				   
@@ -39,7 +39,8 @@ public class EmailConfigDbUtil {
 				    String projectName=myRes.getString(3);
 				    String customerEmailId=myRes.getString(4);
 					String salesMenName = myRes.getString(5);
-				    NotifyCustomerOnFeedback tempsoList=new NotifyCustomerOnFeedback(invoiceId,invoiceDate,  projectName, customerEmailId, salesMenName);
+					String footerName = myRes.getString(6);
+				    NotifyCustomerOnFeedback tempsoList=new NotifyCustomerOnFeedback(invoiceId,invoiceDate,  projectName, customerEmailId, salesMenName,footerName);
 				    listObjs.add(tempsoList);				  
 				} 
 			   return listObjs;
@@ -58,12 +59,15 @@ public class EmailConfigDbUtil {
 			
 			String toAddress = theLData.getCustomerEmailId();
 			String today = getCurrentDateString();
-			String todayTime = getCurrentDateTimeString();			
+			String todayTime = getCurrentDateTimeString();
+
 
 			System.out.println("Logistic to Division, TO Address : " + toAddress);			
 			//String approvalUrl=""+theUrlAddress+"survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName();
-			String approvalUrl="http://10.10.4.132:8080/FJPORTAL_DEV/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName();
+			String approvalUrl="https://portal.fjtco.com:8444/fjhr/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName();
+//			 String approvalUrl="http://10.10.4.132:8080/FJPORTAL_DEV/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName();
 
+			 //https://portal.fjtco.com:8444/fjhr/survey-form.jsp
 		/*	String msg = "<table align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"width:100%; font-family:Helvetica,Arial,sans-serif; background-color:#f5f7fa; padding:20px;\">"
 				    + "<tr><td>"
 				        + "<table align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"background:#ffffff; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); padding:20px;\">"
@@ -82,47 +86,47 @@ public class EmailConfigDbUtil {
 		*/
 
 			 String msg =
-					 "<table align='center' cellpadding='0' cellspacing='0' width='100%' style='font-family:Arial, Helvetica, sans-serif; background-color:#f4f6f9; padding:30px;'>"
+					 "<table align='center' cellpadding='0' cellspacing='0' width='100%' style='font-family:Arial, Helvetica, sans-serif; background-color:#f4f6f9; padding:12px;'>"
 							 + "  <tr><td align='center'>"
 							 + "    <table cellpadding='0' cellspacing='0' width='600' style='background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);'>"
 
 							 // Header
-							 + "      <tr><td align='center' style='background:#0073e6; padding:20px;'>"
+							 + "      <tr><td align='center' style='background:#0073e6; padding:12px;'>"
 							 + "        <h2 style='margin:0; font-size:22px; color:#ffffff;'>Customer Feedback Request</h2>"
 							 + "      </td></tr>"
 
 							 // Body
-							 + "      <tr><td style='padding:30px; font-size:15px; color:#333333; line-height:1.6;'>"
+							 + "      <tr><td style='padding:20px; font-size:15px; color:#333333; line-height:1.6;'>"
 							 + "        Dear <b>Customer</b>,<br/><br/>"
-							 + "        We value your opinion and would love to hear your feedback on our service. "
+							 + "        We value your opinion and like to hear your feedback on our service. "
 							 + "        Please click the button below to share your thoughts with us."
 							 + "        <br/><br/>"
 
 							 // CTA Button
-							 + "        <div style='text-align:center; margin:25px 0;'>"
+							 + "        <div style='text-align:center; margin:8px 0;'>"
 							 + "          <a href='" + approvalUrl + "' "
 							 + "             style='display:inline-block; padding:14px 28px; background:#0073e6; color:#ffffff; text-decoration:none; "
-							 + "                    border-radius:5px; font-size:16px; font-weight:bold;'>"
+							 + "                    border-radius:10px; font-size:16px; font-weight:bold;'>"
 							 + "             Give Feedback"
 							 + "          </a>"
 							 + "        </div>"
 
 							 // Project Details
-							 + "        <h3 style='color:#0073e6; margin-top:20px;'>Project Details</h3>"
+							 + "        <h3 style='color:#0073e6; margin-top:8px;'>Project Details</h3>"
 							 + "        <table cellpadding='6' cellspacing='0' width='100%' style='border:1px solid #e0e0e0; border-radius:6px;'>"
-							 + "          <tr style='background:#f9f9f9;'><td><b>Salesman Name:</b></td><td>" + theLData.getSalesMenName() + "</td></tr>"
-							 + "          <tr><td><b>Invoice Number:</b></td><td>" + theLData.getInvoiceId() + "</td></tr>"
-							 + "          <tr style='background:#f9f9f9;'><td><b>Invoice Date:</b></td><td>" + formattedDateString(theLData.getInvoiceDate()) + "</td></tr>"
-							 + "          <tr><td><b>Project Name:</b></td><td>" + theLData.getProjectName() + "</td></tr>"
+							 + "          <tr style='background:#f9f9f9;'><td><b>Salesman<br> Name:</b></td><td>" + theLData.getSalesMenName() + "</td></tr>"
+							 + "          <tr><td><b>Invoice<br> Number:</b></td><td>" + theLData.getInvoiceId() + "</td></tr>"
+							 + "          <tr style='background:#f9f9f9;'><td><b>Invoice <br> Date :</b></td><td>" + formattedDateString(theLData.getInvoiceDate()) + "</td></tr>"
+							 + "          <tr><td><b>Project<br> Name:</b></td><td>" + theLData.getProjectName() + "</td></tr>"
 							 + "        </table>"
 							 + "        <br/><br/>"
-							 + "        Thank you for your time and trust in us.<br/>"
-							 + "        <b>FJ Group Customer Experience Team</b>"
+							 + "        Thank you for your time and trust in us.  <br/>"
+							 + "        <b>"+theLData.getFooterName()+"  Customer Experience Team</b>"
 							 + "      </td></tr>"
 
 							 // Footer
-							 + "      <tr><td align='center' style='background:#f4f6f9; padding:15px; font-size:12px; color:#777;'>"
-							 + "        © " + today.substring(today.length()-4) + " FJ Group. All Rights Reserved."
+							 + "      <tr><td align='center' style='background:#f4f6f9; padding:10px; font-size:10px; color:#777;'>"
+							 + "        ©  " + today.substring(today.length()-4)+" "+theLData.getFooterName()+ "  All Rights Reserved."
 							 + "      </td></tr>"
 
 							 + "    </table>"
@@ -134,7 +138,7 @@ public class EmailConfigDbUtil {
 			sslmail.setMessagebody(msg);
 			int emailstatus = sslmail.sendMail();
 			if (emailstatus == 1) {				
-				//updateEmailStatus(theLData.getInvoiceId());
+				updateEmailStatus(theLData.getInvoiceId());
 			}else {
 				System.out.println("Error in sending email notification for the logistic team");
 			}

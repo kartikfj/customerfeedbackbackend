@@ -10,6 +10,16 @@ public class NotifyCustomerOnFeedback {
 	private String projectName = null;	
 	private String customerEmailId = null;
 	private String salesMenName = null;
+
+	public String getFooterName() {
+		return footerName;
+	}
+
+	public void setFooterName(String footerName) {
+		this.footerName = footerName;
+	}
+
+	private String footerName = null;
 	public String getInvoiceId() {
 		return invoiceId;
 	}
@@ -55,13 +65,14 @@ public class NotifyCustomerOnFeedback {
 	}
 
 
-	public NotifyCustomerOnFeedback(String invoiceId,String invoiceDate,String projectName, String customerEmailId, String salesMenName) {
+	public NotifyCustomerOnFeedback(String invoiceId,String invoiceDate,String projectName, String customerEmailId, String salesMenName,String footerName) {
 		super();
 		this.invoiceId = invoiceId;
 		this.invoiceDate = invoiceDate;
 		this.projectName = projectName;
 		this.customerEmailId = customerEmailId;
 		this.salesMenName = salesMenName;
+		this.footerName = footerName;
 	}
 	
 }
