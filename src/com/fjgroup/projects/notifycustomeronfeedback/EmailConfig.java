@@ -114,10 +114,10 @@ public class EmailConfig {
 	try {
 
 		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(this.fromaddr, "FJGroup No_Reply"));
+		message.setFrom(new InternetAddress(this.fromaddr, "No_Reply"));
         System.out.println(this.toaddr);
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(this.toaddr));
-		//message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("kartik.p@fjtco.com"));
+		//message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("kashif@fjtco.com"));
 		//message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(this.ccaddr));
 		message.setSubject(this.messageSub);   
 		

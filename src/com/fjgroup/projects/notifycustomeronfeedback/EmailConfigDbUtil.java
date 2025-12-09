@@ -3,6 +3,7 @@ package com.fjgroup.projects.notifycustomeronfeedback;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Date;
@@ -28,7 +29,7 @@ public class EmailConfigDbUtil {
 			ResultSet myRes=null;
 			OracleDBConnection orcl=new OracleDBConnection();
 			List<NotifyCustomerOnFeedback> listObjs = new ArrayList<>();
-			try {
+			/*try {
 				myCon = orcl.getOracleConn();
 		        String sql = "select INVSYSID, INVOICE_DATE, PROJECT, CUSTOMER_EMAIL, SALES_PERSON_NAME, FOOTER_COMP_NAME FROM CUST_FEED_SUMM WHERE (EMAIL_STATUS IS NULL OR EMAIL_STATUS ='N') ";
 			   myStmt = myCon.prepareStatement(sql);			  
@@ -44,7 +45,76 @@ public class EmailConfigDbUtil {
 				    listObjs.add(tempsoList);				  
 				} 
 			   return listObjs;
-			   }
+			   }*/
+		 try {
+			 myCon = orcl.getOracleConn();
+
+			 String sql = "SELECT " +
+					 "S.INVSYSID, " +
+					 "S.INVOICE_DATE, " +
+					 "S.PROJECT, " +
+					 "S.CUSTOMER_EMAIL, " +
+					 "S.SALES_PERSON_NAME, " +
+					 "S.FOOTER_COMP_NAME, " +
+					 "M.COMPNAME, " +
+					 "M.ADDRESS, " +
+					 "M.FACEBOOK, " +
+					 "M.INSTAGRAM, " +
+					 "M.WEBSITE, " +
+					 "M.IMAGEURL, " +
+                     "S.INVOICE_CODE, "+
+					 "S.INVOICE_NO, "+
+					 "S.COMP_CODE " +
+					 "FROM FJPORTAL.CUST_FEED_SUMM S " +
+					 "LEFT JOIN FJPORTAL.CUST_FEED_MASTER M " +
+					 "ON S.COMP_CODE = M.COMPCODE " +
+					 "WHERE S.EMAIL_STATUS IS NULL OR S.EMAIL_STATUS = 'N'";
+
+			 myStmt = myCon.prepareStatement(sql);
+			 myRes = myStmt.executeQuery();
+
+			 while (myRes.next()) {
+				 String invoiceId = myRes.getString("INVSYSID");
+				 String invoiceDate = myRes.getString("INVOICE_DATE");
+				 String projectName = myRes.getString("PROJECT");
+				 String customerEmailId = myRes.getString("CUSTOMER_EMAIL");
+				 String salesMenName = myRes.getString("SALES_PERSON_NAME");
+				 String footerName = myRes.getString("FOOTER_COMP_NAME");
+
+				 // These can be null — no issue
+				 String compName = myRes.getString("FOOTER_COMP_NAME");
+				 String address = myRes.getString("ADDRESS");
+				 String facebook = myRes.getString("FACEBOOK");
+				 String instagram = myRes.getString("INSTAGRAM");
+				 String website = myRes.getString("WEBSITE");
+				 String imageUrl = myRes.getString("IMAGEURL");
+				 String invoiceNO = myRes.getString("INVOICE_NO");
+				 String invoiceCode = myRes.getString("INVOICE_CODE");
+				 String compCode = myRes.getString("COMP_CODE");
+
+				 NotifyCustomerOnFeedback tempObj = new NotifyCustomerOnFeedback(
+						 invoiceId,
+						 invoiceDate,
+						 projectName,
+						 customerEmailId,
+						 salesMenName,
+						 footerName,
+						 compName,
+						 address,
+						 facebook,
+						 instagram,
+						 website,
+						 imageUrl,
+						 compCode,
+						 invoiceNO,
+						 invoiceCode
+				 );
+
+				 listObjs.add(tempObj);
+			 }
+
+			 return listObjs;
+		 }
 			finally { // close jdbc objects
 				close(myStmt,myRes);
 				orcl.closeOrclConnection(); }
@@ -64,26 +134,57 @@ public class EmailConfigDbUtil {
 
 			System.out.println("Logistic to Division, TO Address : " + toAddress);			
 			//String approvalUrl=""+theUrlAddress+"survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName();
-			String approvalUrl="https://portal.fjtco.com:8444/fjhr/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName();
-//			 String approvalUrl="http://10.10.4.132:8080/FJPORTAL_DEV/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName();
+			String approvalUrl="https://portal.fjtco.com:8444/fjhr/survey-form.jsp?dinvi="+theLData.getInvoiceCode()+"-"+theLData.getInvoiceNumber()+"&dinvisy="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName()+"&compCode="+theLData.getCompCode()+"&compName="+theLData.getCompName();
+			// String approvalUrl="http://10.10.4.132:8080/FJPORTAL_DEV/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName();
+			//kk String approvalUrl="http://10.10.4.132:8080/FJPORTAL_DEV/survey-form.jsp?dinvi="+theLData.getInvoiceCode()+"-"+theLData.getInvoiceNumber()+"&dinvisy="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName()+"&compCode="+theLData.getCompCode()+"&compName="+theLData.getCompName();
+			// String approvalUrl="https://portal.fjtco.com:8444/fjhr/survey-form.jsp?dinvi="+theLData.getInvoiceId()+"&dinevtiad="+formattedDateString(theLData.getInvoiceDate())+"&pnraoejm="+theLData.getProjectName()+"&salesname="+theLData.getSalesMenName()+"&compCode="+theLData.getCompCode()+"&compName="+theLData.getCompName();
 
-			 //https://portal.fjtco.com:8444/fjhr/survey-form.jsp
-		/*	String msg = "<table align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"width:100%; font-family:Helvetica,Arial,sans-serif; background-color:#f5f7fa; padding:20px;\">"
-				    + "<tr><td>"
-				        + "<table align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"background:#ffffff; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); padding:20px;\">"
-				            + "<tr><td style=\"font-size:16px; color:#333;\">"
-				                + "Dear <b>Customer</b>,<br/><br/>"
-				                + "We value your opinion! Please share your feedback by clicking the button below:<br/><br/>"
-				                + "<a href=\"" + approvalUrl + "\" "
-				                    + "style=\"display:inline-block; padding:10px 20px; background:#0073e6; color:#ffffff; border-radius:4px; text-decoration:none; font-weight:bold;\">"
-				                    + "Give Feedback"
-				                + "</a><br/><br/>"
-				                + "<h3 style=\"color:#444;\">Project Details</h3>"
-				                + "<p><b>SalesMan Name :</b> <span style=\"color:#0073e6;\">" + theLData.getSalesMenName() + "</span><br/>"
-				            	+ "<p><b>Invoice Number:</b> <span style=\"color:#0073e6;\">" + theLData.getInvoiceId() + "</span><br/>"
-				            	+ "<b>Invoice Date:</b> <span style=\"color:#0073e6;\">" + formattedDateString(theLData.getInvoiceDate()) + "</span><br/>"
-				                + "<b>Project Name:</b> <span style=\"color:#0073e6;\">" + theLData.getProjectName() + "</span></p><br/><br/>";
-		*/
+			 String companyName = theLData.getCompCode();  // Example: from DB
+			 String logoUrl = "https://www.faisaljassim.ae/images/white-logo.png";
+
+			 if (companyName != null) {
+				 companyName = companyName.trim();
+				 //logoUrl = "https://www.faisaljassim.ae/images/white-logo.png";
+				 if (companyName.contains("ACL")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/image12.jpg";
+				 } else if (companyName.contains("EME")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/ec.png";
+				 }
+				/* else if (companyName.contains("META")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/metaform.png";
+				 }
+				 else if (companyName.contains("MPD")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/mpd.jpg";
+				 }
+				 else if (companyName.contains("DCS")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/dcserve.png";
+				 }
+				 else if (companyName.contains("FJC")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/fjcare.png";
+				 }
+				 else if (companyName.contains("FJES")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/fjenergy.jpg";
+				 }
+				 else if (companyName.contains("FJIPP")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/aquaflow.png";
+				 }
+				 else if (companyName.contains("ADL")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/alphaducts.png";
+				 }
+				 else if (companyName.contains("FT")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/ft.png";
+				 }
+				 else if (companyName.contains("ECS")) {
+					 logoUrl = "https://myfirstangulareg.s3.us-east-2.amazonaws.com/company-logo/ecs.jpg";
+				 }*/
+				 else {
+					 // Default or fallback logo
+					 logoUrl = "https://www.faisaljassim.ae/images/white-logo.png";
+				 }
+			 }
+
+
+
 
 			 String msg =
 					 "<table align='center' cellpadding='0' cellspacing='0' width='100%' style='font-family:Arial, Helvetica, sans-serif; background-color:#f4f6f9; padding:12px;'>"
@@ -91,37 +192,77 @@ public class EmailConfigDbUtil {
 							 + "    <table cellpadding='0' cellspacing='0' width='600' style='background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);'>"
 
 							 // Header
-							 + "      <tr><td align='center' style='background:#0073e6; padding:12px;'>"
+						/*	 + "      <tr><td align='center' style='background:#0073e6; padding:12px;'>"
 							 + "        <h2 style='margin:0; font-size:22px; color:#ffffff;'>Customer Feedback Request</h2>"
-							 + "      </td></tr>"
+							 + "      </td></tr>"*/
+							 + "  <tr>"
+							 + "    <td align='center' style='background:#0073e6; padding:12px;'>"
+							 + "      <table width='100%' cellpadding='0' cellspacing='0' style='max-width:600px;'>"
+							 + "        <tr>"
+							 + "          <td align='left' style='width:50px; margin-right:20px;' >"
+							 + "            <img src='" + logoUrl + "' alt='Company Logo' style='height:50px; display:block;'>"
+
+							 + "          </td>"
+							 + "          <td align='left'>"
+							 + "            <h2 style='margin:0;margin-left:20px; font-size:22px; color:#ffffff;'>Customer Feedback Request</h2>"
+							 + "          </td>"
+							 + "        </tr>"
+							 + "      </table>"
+							 + "    </td>"
+							 + "  </tr>"
 
 							 // Body
 							 + "      <tr><td style='padding:20px; font-size:15px; color:#333333; line-height:1.6;'>"
 							 + "        Dear <b>Customer</b>,<br/><br/>"
 							 + "        We value your opinion and like to hear your feedback on our service. "
-							 + "        Please click the button below to share your thoughts with us."
+
 							 + "        <br/><br/>"
 
-							 // CTA Button
+							/* // CTA Button
 							 + "        <div style='text-align:center; margin:8px 0;'>"
 							 + "          <a href='" + approvalUrl + "' "
 							 + "             style='display:inline-block; padding:14px 28px; background:#0073e6; color:#ffffff; text-decoration:none; "
 							 + "                    border-radius:10px; font-size:16px; font-weight:bold;'>"
 							 + "             Give Feedback"
 							 + "          </a>"
-							 + "        </div>"
+							 + "        </div>"*/
+							 // 5-Star Rating Block
+							/* + "        <div style='text-align:center; margin:15px 0;'>"
+							 + "          <p style='font-size:16px; color:#333;'>How would you rate our service?</p>"
+							 + "          <div>"
+							 + "            <a href='" + approvalUrl + "&rating=1&email=" + toAddress + "' style='text-decoration:none; font-size:30px;'>⭐</a>"
+							 + "            <a href='" + approvalUrl + "&rating=2&email=" + toAddress + "' style='text-decoration:none; font-size:30px;'>⭐</a>"
+							 + "            <a href='" + approvalUrl + "&rating=3&email=" + toAddress + "' style='text-decoration:none; font-size:30px;'>⭐</a>"
+							 + "            <a href='" + approvalUrl + "&rating=4&email=" + toAddress + "' style='text-decoration:none; font-size:30px;'>⭐</a>"
+							 + "            <a href='" + approvalUrl + "&rating=5&email=" + toAddress + "' style='text-decoration:none; font-size:30px;'>⭐</a>"
+							 + "          </div>"
+							 + "          <p style='font-size:12px; color:#666;'>Click on a star to share your feedback</p>"
+							 + "        </div>"*/
+							 + "  <div style='text-align:center; margin:15px 0;'>"
+							 + "    <p style='font-size:16px; color:#333; margin:0 0 10px 0;'>How would you overall rate our service?</p>"
+							 + "    <div style='display:inline-block;'>"
+							 + "      <a href='" + approvalUrl + "&rating=1&email=" + toAddress + "' style='text-decoration:none; font-size:38px; color:#ccc; margin:0 2px;'>&#9734;</a>"
+							 + "      <a href='" + approvalUrl + "&rating=2&email=" + toAddress + "' style='text-decoration:none; font-size:38px; color:#ccc; margin:0 2px;'>&#9734;</a>"
+							 + "      <a href='" + approvalUrl + "&rating=3&email=" + toAddress + "' style='text-decoration:none; font-size:38px; color:#ccc; margin:0 2px;'>&#9734;</a>"
+							 + "      <a href='" + approvalUrl + "&rating=4&email=" + toAddress + "' style='text-decoration:none; font-size:38px; color:#ccc; margin:0 2px;'>&#9734;</a>"
+							 + "      <a href='" + approvalUrl + "&rating=5&email=" + toAddress + "' style='text-decoration:none; font-size:38px; color:#ccc; margin:0 2px;'>&#9734;</a>"
+							 + "    </div>"
+							 + "    <p style='font-size:12px; color:#666; margin-top:5px;'>Click on a star to share your feedback</p>"
+							 + "  </div>"
 
-							 // Project Details
+
+
+			 // Project Details
 							 + "        <h3 style='color:#0073e6; margin-top:8px;'>Project Details</h3>"
 							 + "        <table cellpadding='6' cellspacing='0' width='100%' style='border:1px solid #e0e0e0; border-radius:6px;'>"
-							 + "          <tr style='background:#f9f9f9;'><td><b>Salesman<br> Name:</b></td><td>" + theLData.getSalesMenName() + "</td></tr>"
-							 + "          <tr><td><b>Invoice<br> Number:</b></td><td>" + theLData.getInvoiceId() + "</td></tr>"
+							 + "          <tr style='background:#f9f9f9;'><td><b>Sales<br> Person:</b></td><td>" + theLData.getSalesMenName().split("-")[0] + "</td></tr>"
+							 + "          <tr><td><b>Invoice<br> Number:</b></td><td>" +theLData.getInvoiceNumber() + "</td></tr>"
 							 + "          <tr style='background:#f9f9f9;'><td><b>Invoice <br> Date :</b></td><td>" + formattedDateString(theLData.getInvoiceDate()) + "</td></tr>"
 							 + "          <tr><td><b>Project<br> Name:</b></td><td>" + theLData.getProjectName() + "</td></tr>"
 							 + "        </table>"
 							 + "        <br/><br/>"
 							 + "        Thank you for your time and trust in us.  <br/>"
-							 + "        <b>"+theLData.getFooterName()+"  Customer Experience Team</b>"
+							 + "        <b>"+theLData.getFooterName()+"<br/>  Customer Experience Team</b>"
 							 + "      </td></tr>"
 
 							 // Footer
@@ -143,11 +284,14 @@ public class EmailConfigDbUtil {
 				System.out.println("Error in sending email notification for the logistic team");
 			}
 		}
-		 }catch(Exception e) {
+		 }catch(Exception e)
+		 {
 			 System.out.println("Error in sending email notification for the logistic team");
 		 }
 	 }
-	 public int updateEmailStatus(String invNo) {	
+	 public int updateEmailStatus(String invNos) {
+		// System.out.println("my invoidNO"+invNo);
+		   int invNo=Integer.parseInt(invNos);
 			int logType = -2;
 			Connection myCon = null;
 			PreparedStatement myStmt = null;
@@ -158,9 +302,9 @@ public class EmailConfigDbUtil {
 				if (myCon == null)
 					return -2;
 				String sql = " UPDATE FJPORTAL.CUST_FEED_SUMM   " + " SET EMAIL_STATUS  = 'Y' "
-						+ " WHERE INVOICE_NO = ? ";
+						+ " WHERE INVSYSID = ? ";
 				myStmt = myCon.prepareStatement(sql);
-				myStmt.setString(1, invNo);				
+				myStmt.setInt(1, invNo);
 				logType = myStmt.executeUpdate();
 				System.out.println("updateEmailStatus LOG VALUE : " + logType);
 			} catch (SQLException ex) {
